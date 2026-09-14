@@ -70,6 +70,42 @@ export const INITIAL_PRODUCE_BATCHES: ProduceBatch[] = [
     imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBLlh4SS3weowz3tOw7B61C99DRsCPuH1Dkd0fMw6XJCosnPcVLd3jT31_yTwpRai0m5JIDVmLt20J8JSQ16JvM16-CISvi-dERKHU2_07UZNS0kUHvM_wH4Ceu0u42vKDL4OL6OKfPUf44c6wigRw4WHF3uf_NHuV0thDD4Hy8DNSUZfHTYiuhxmbysQzn8ma3XJG304fL19ZaiCgbqBR78vIlcJMd1IwCLnTdwcAnBa_ztJIx7KrN',
     statusNote: 'Dense head, dewy moisture locked in',
     farmerName: 'Kezhokhoto Chase (Khonoma)'
+  },
+  {
+    id: 'batch-5',
+    batchCode: '#SS-086',
+    cropName: 'Queen Pineapple',
+    variety: 'Ananas comosus (Tripura)',
+    category: 'TROPICAL FRUIT',
+    tag: 'GI-TAGGED',
+    weightKg: 280,
+    crates: 10,
+    freshnessPercent: 95,
+    qualityGrade: 'Grade A+',
+    storedDays: 3,
+    targetMandi: 'Agartala Apex Mandi',
+    dispatchDaysLeft: 6,
+    imageUrl: 'https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=500&auto=format&fit=crop&q=80',
+    statusNote: 'Optimum chill, 14.8° Brix sugar, no crown browning',
+    farmerName: 'Debbarma Organic Cluster (Sepahijala)'
+  },
+  {
+    id: 'batch-6',
+    batchCode: '#SS-088',
+    cropName: 'Ziro Organic Kiwi',
+    variety: 'Actinidia deliciosa',
+    category: 'HIGHLAND FRUIT',
+    tag: 'ORGANIC CERTIFIED',
+    weightKg: 190,
+    crates: 8,
+    freshnessPercent: 97,
+    qualityGrade: 'Export A',
+    storedDays: 4,
+    targetMandi: 'Guwahati International Cargo Terminal',
+    dispatchDaysLeft: 7,
+    imageUrl: 'https://images.unsplash.com/photo-1618897996318-5a901fa6ca71?w=500&auto=format&fit=crop&q=80',
+    statusNote: 'Firm flesh, ethylene scrubber active, crisp pulp',
+    farmerName: 'Tage Hinda (Ziro Valley, Arunachal)'
   }
 ];
 

@@ -1,11 +1,17 @@
 import React, { useState } from 'react';
-import { ActuatorState, ChamberTelemetry } from '../types';
+import { ActuatorState, ChamberTelemetry, SupabaseTelemetryState } from '../types';
 import { HOURLY_TEMPERATURE_DATA } from '../data/initialData';
+import { SupabaseLiveBanner } from './SupabaseLiveBanner';
 
 interface ChamberTabProps {
   chamber: ChamberTelemetry;
   actuators: ActuatorState;
   lastSyncedSeconds: number;
+  supabaseTelemetry: SupabaseTelemetryState;
+  isRefreshingSupabase: boolean;
+  onRefreshSupabase: () => void;
+  onSendTestReading?: () => void;
+  isSendingTest?: boolean;
   onUpdateSetpoint: (delta: number) => void;
   onToggleTurbo: (active: boolean) => void;
   onToggleDoor: () => void;
@@ -17,6 +23,11 @@ export const ChamberTab: React.FC<ChamberTabProps> = ({
   chamber,
   actuators,
   lastSyncedSeconds,
+  supabaseTelemetry,
+  isRefreshingSupabase,
+  onRefreshSupabase,
+  onSendTestReading,
+  isSendingTest,
   onUpdateSetpoint,
   onToggleTurbo,
   onToggleDoor,
@@ -32,6 +43,15 @@ export const ChamberTab: React.FC<ChamberTabProps> = ({
 
   return (
     <div className="flex flex-col w-full px-4 py-2 space-y-4 max-w-md mx-auto">
+      {/* Supabase Live Telemetry Feed (6 Core Required Metrics) */}
+      <SupabaseLiveBanner
+        telemetry={supabaseTelemetry}
+        isLoading={isRefreshingSupabase}
+        onRefresh={onRefreshSupabase}
+        onSendTestReading={onSendTestReading}
+        isSendingTest={isSendingTest}
+      />
+
       {/* Alert/Status Ambient Pill */}
       <div className="flex items-center justify-between px-4 py-1.5 bg-surface-container-low rounded-full shadow-sm border border-outline-variant/30">
         <div className="flex items-center gap-2 min-w-0">
@@ -57,7 +77,7 @@ export const ChamberTab: React.FC<ChamberTabProps> = ({
               ac_unit
             </span>
             <span className="text-xs uppercase tracking-wider text-on-surface-variant font-semibold">
-              Chamber Thermal State
+              Fruit & Veg Chamber Climate
             </span>
           </div>
           <span
@@ -123,7 +143,7 @@ export const ChamberTab: React.FC<ChamberTabProps> = ({
           </div>
           <div className="text-right">
             <span className="px-2 py-0.5 rounded-full text-[10px] bg-primary-fixed text-on-primary-fixed font-semibold inline-block">
-              Greens & Chillies OK
+              Fruits & Veggies OK
             </span>
             <div className="text-[10px] text-on-surface-variant mt-0.5">
               VPD: {chamber.vpd} kPa (Optimal)

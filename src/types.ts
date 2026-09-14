@@ -97,3 +97,29 @@ export interface SensorBusItem {
   nominal: boolean;
   icon: string;
 }
+
+export interface SupabaseTelemetryState {
+  isConfigured: boolean;
+  isConnected: boolean;
+  lastReadingTime: string | null;
+  lastFetchedAt: Date | null;
+  errorMessage: string | null;
+  isRealtimeActive: boolean;
+  latestReading: {
+    temperature: number;
+    humidity: number;
+    batteryLevel: number;
+    solarPower: number;
+    coolingStatus: string;
+    readingTime: string;
+  } | null;
+  recentReadings: Array<{
+    id: string;
+    temperature: number;
+    humidity: number;
+    batteryLevel: number;
+    solarPower: number;
+    coolingStatus: string;
+    readingTime: string;
+  }>;
+}

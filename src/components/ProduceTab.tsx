@@ -18,6 +18,7 @@ export const ProduceTab: React.FC<ProduceTabProps> = ({
 }) => {
   const [isInflowOpen, setIsInflowOpen] = useState(false);
   const [isGatepassOpen, setIsGatepassOpen] = useState(false);
+  const [filterCategory, setFilterCategory] = useState<'all' | 'fruits' | 'vegetables' | 'gi'>('all');
 
   // Dynamic capacity & value calculations
   const totalCrates = batches.reduce((acc, b) => acc + b.crates, 0);
@@ -25,11 +26,42 @@ export const ProduceTab: React.FC<ProduceTabProps> = ({
   const capacityPercent = Math.min(100, Math.round((totalCrates / maxCrates) * 100));
   const availableCrates = Math.max(0, maxCrates - totalCrates);
   const totalWeightTons = (batches.reduce((acc, b) => acc + b.weightKg, 0) / 1000).toFixed(1);
+
   const totalValuation = batches.reduce((acc, b) => {
     // Estimated valuation per kg based on crop type
-    const rate = b.cropName.includes('Chilli') ? 350 : b.cropName.includes('Ginger') ? 140 : b.cropName.includes('Mandarin') ? 95 : 45;
+    let rate = 65;
+    if (b.cropName.includes('Chilli')) rate = 350;
+    else if (b.cropName.includes('Kiwi')) rate = 220;
+    else if (b.cropName.includes('Ginger')) rate = 140;
+    else if (b.cropName.includes('Mandarin')) rate = 95;
+    else if (b.cropName.includes('Pineapple')) rate = 85;
+    else if (b.cropName.includes('Cabbage')) rate = 45;
     return acc + b.weightKg * rate;
   }, 0);
+
+  const filteredBatches = batches.filter((batch) => {
+    if (filterCategory === 'all') return true;
+    if (filterCategory === 'gi') return Boolean(batch.tag?.includes('GI'));
+    if (filterCategory === 'fruits') {
+      return (
+        batch.category.includes('FRUIT') ||
+        batch.category.includes('CITRUS') ||
+        batch.cropName.includes('Mandarin') ||
+        batch.cropName.includes('Pineapple') ||
+        batch.cropName.includes('Kiwi')
+      );
+    }
+    if (filterCategory === 'vegetables') {
+      return (
+        batch.category.includes('VEG') ||
+        batch.category.includes('PEPPERS') ||
+        batch.cropName.includes('Chilli') ||
+        batch.cropName.includes('Ginger') ||
+        batch.cropName.includes('Cabbage')
+      );
+    }
+    return true;
+  });
 
   return (
     <div className="flex flex-col w-full px-4 pb-20 space-y-4 max-w-md mx-auto">
@@ -43,7 +75,7 @@ export const ProduceTab: React.FC<ProduceTabProps> = ({
               verified
             </span>
             <span className="text-[10px] text-primary-fixed tracking-wide uppercase font-semibold">
-              Kohima Unit • Safe Storage
+              Kohima Unit • Fruit & Veg Storage
             </span>
           </div>
           <div className="flex items-center gap-1 bg-surface-container-lowest/20 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/10">
@@ -53,21 +85,21 @@ export const ProduceTab: React.FC<ProduceTabProps> = ({
         </div>
 
         <div className="mt-2">
-          <p className="text-xs text-primary-fixed-dim">Estimated Produce Value Protected</p>
+          <p className="text-xs text-primary-fixed-dim">Estimated Fruit & Vegetable Crop Value Protected</p>
           <div className="flex items-baseline gap-2 mt-0.5">
             <span className="text-3xl font-bold tracking-tight text-on-primary font-mono">
               ₹{totalValuation.toLocaleString()}
             </span>
-            <span className="text-xs text-primary-fixed-dim">NER Regional Valuation</span>
+            <span className="text-xs text-primary-fixed-dim">NER Regional Mandi Valuation</span>
           </div>
         </div>
 
         <div className="mt-3 pt-2.5 bg-surface-container-lowest/10 -mx-4 -mb-4 px-4 py-2.5 flex items-center justify-between border-t border-white/10">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-[18px] text-primary-fixed-dim">eco</span>
-            <span className="text-xs text-on-primary font-medium">Zero Spoilage recorded across last 45 days</span>
+            <span className="text-xs text-on-primary font-medium">Post-harvest weight loss reduced by 94%</span>
           </div>
-          <span className="text-xs text-primary-fixed font-bold">100% Retained</span>
+          <span className="text-xs text-primary-fixed font-bold">Cold Chain Protected</span>
         </div>
       </div>
 
@@ -76,8 +108,8 @@ export const ProduceTab: React.FC<ProduceTabProps> = ({
         {/* Header with Live Metric Chips */}
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-semibold text-on-surface">Chamber NER-04 Overview</h2>
-            <p className="text-xs text-on-surface-variant">Cold atmosphere for hill horticulture</p>
+            <h2 className="text-sm font-semibold text-on-surface">Chamber Cold Storage Overview</h2>
+            <p className="text-xs text-on-surface-variant">Optimal cold atmosphere for hill horticulture</p>
           </div>
           <div className="flex items-center gap-1.5">
             <div className="flex items-center gap-1 bg-surface-container px-2 py-1 rounded-lg">
@@ -98,7 +130,7 @@ export const ProduceTab: React.FC<ProduceTabProps> = ({
           <div className="flex items-center justify-between text-on-surface">
             <div className="flex items-center gap-1.5">
               <span className="material-symbols-outlined text-[16px] text-primary">inventory_2</span>
-              <span className="text-xs font-semibold">{totalWeightTons} Metric Tons Active</span>
+              <span className="text-xs font-semibold">{totalWeightTons} Metric Tons Stored</span>
             </div>
             <span className="text-xs text-on-surface-variant font-medium">
               {totalCrates} / {maxCrates} Standard Crates
@@ -120,20 +152,66 @@ export const ProduceTab: React.FC<ProduceTabProps> = ({
         </div>
       </div>
 
+      {/* Filter Tabs for Fruits vs Vegetables */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+        <button
+          onClick={() => setFilterCategory('all')}
+          className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
+            filterCategory === 'all'
+              ? 'bg-primary text-on-primary'
+              : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
+          }`}
+        >
+          All Crops ({batches.length})
+        </button>
+        <button
+          onClick={() => setFilterCategory('fruits')}
+          className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors flex items-center gap-1 ${
+            filterCategory === 'fruits'
+              ? 'bg-primary text-on-primary'
+              : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
+          }`}
+        >
+          <span className="material-symbols-outlined text-[14px]">nutrition</span>
+          Fresh Fruits
+        </button>
+        <button
+          onClick={() => setFilterCategory('vegetables')}
+          className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors flex items-center gap-1 ${
+            filterCategory === 'vegetables'
+              ? 'bg-primary text-on-primary'
+              : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
+          }`}
+        >
+          <span className="material-symbols-outlined text-[14px]">spa</span>
+          Vegetables & Spices
+        </button>
+        <button
+          onClick={() => setFilterCategory('gi')}
+          className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
+            filterCategory === 'gi'
+              ? 'bg-primary text-on-primary'
+              : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
+          }`}
+        >
+          GI Tagged
+        </button>
+      </div>
+
       {/* Produce Batches Section Header */}
       <div className="flex items-center justify-between pt-1">
         <div className="flex items-center gap-2">
           <span className="material-symbols-outlined text-[20px] text-primary">spa</span>
-          <h3 className="text-sm font-semibold text-on-surface">Active Produce Batches</h3>
+          <h3 className="text-sm font-semibold text-on-surface">Cold Storage Crate Inventory</h3>
         </div>
         <span className="bg-surface-container-high text-on-surface-variant px-2.5 py-0.5 rounded-full text-xs font-semibold">
-          {batches.length} Batches
+          {filteredBatches.length} Batches
         </span>
       </div>
 
       {/* Produce Batch Cards List */}
       <div className="flex flex-col space-y-3">
-        {batches.map((batch) => (
+        {filteredBatches.map((batch) => (
           <div
             key={batch.id}
             className="rounded-xl bg-surface-container-lowest p-3.5 shadow-sm space-y-2.5 relative border border-outline-variant/25"
@@ -179,6 +257,14 @@ export const ProduceTab: React.FC<ProduceTabProps> = ({
               </div>
             </div>
 
+            {/* Quality status note */}
+            {batch.statusNote && (
+              <div className="text-[11px] px-2 py-1 rounded bg-surface-container-low text-on-surface-variant flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[14px] text-primary">check_circle</span>
+                <span className="truncate">{batch.statusNote}</span>
+              </div>
+            )}
+
             {/* Freshness Details Bar */}
             <div className="bg-surface-container-low rounded-lg p-2.5 flex items-center justify-between text-on-surface text-xs border border-outline-variant/15">
               <div className="flex items-center gap-1.5">
@@ -202,7 +288,7 @@ export const ProduceTab: React.FC<ProduceTabProps> = ({
           type="button"
         >
           <span className="material-symbols-outlined text-[20px]">add_circle</span>
-          <span>Register Inflow Batch</span>
+          <span>Register Inflow Fruit / Veg Batch</span>
         </button>
 
         <button

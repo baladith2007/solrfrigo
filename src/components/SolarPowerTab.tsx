@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { BatteryTelemetry, EnergyLedger, ResilienceMode, SolarTelemetry } from '../types';
+import { BatteryTelemetry, EnergyLedger, ResilienceMode, SolarTelemetry, SupabaseTelemetryState } from '../types';
 
 interface SolarPowerTabProps {
   solar: SolarTelemetry;
   battery: BatteryTelemetry;
   energyLedger: EnergyLedger;
   resilienceMode: ResilienceMode;
+  supabaseTelemetry?: SupabaseTelemetryState;
   onChangeResilienceMode: (mode: ResilienceMode) => void;
   onPollSensors: () => void;
   isPolling: boolean;
@@ -16,6 +17,7 @@ export const SolarPowerTab: React.FC<SolarPowerTabProps> = ({
   battery,
   energyLedger,
   resilienceMode,
+  supabaseTelemetry,
   onChangeResilienceMode,
   onPollSensors,
   isPolling
@@ -40,7 +42,14 @@ export const SolarPowerTab: React.FC<SolarPowerTabProps> = ({
         <div className="flex items-center gap-2.5 min-w-0">
           <span className="inline-flex h-2.5 w-2.5 rounded-full bg-primary animate-pulse shrink-0"></span>
           <div className="flex flex-col min-w-0">
-            <span className="text-sm font-semibold text-on-surface truncate">Solar & Power Node</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm font-semibold text-on-surface truncate">Solar & Power Node</span>
+              {supabaseTelemetry?.isConnected && (
+                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 border border-emerald-300">
+                  Supabase Live
+                </span>
+              )}
+            </div>
             <span className="text-[11px] text-on-surface-variant truncate font-mono">
               MPPT Dual-Channel • Bus 48V Active
             </span>

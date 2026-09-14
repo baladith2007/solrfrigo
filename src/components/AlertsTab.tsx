@@ -1,13 +1,25 @@
 import React, { useState } from 'react';
-import { SensorBusItem, SystemAlert } from '../types';
+import { SensorBusItem, SystemAlert, SupabaseTelemetryState } from '../types';
 
 interface AlertsTabProps {
   alerts: SystemAlert[];
   sensorBuses: SensorBusItem[];
+  supabaseTelemetry?: SupabaseTelemetryState;
+  onRefreshSupabase?: () => void;
+  onSendTestReading?: () => void;
+  isSendingTest?: boolean;
   onShowToast: (msg: string) => void;
 }
 
-export const AlertsTab: React.FC<AlertsTabProps> = ({ alerts, sensorBuses, onShowToast }) => {
+export const AlertsTab: React.FC<AlertsTabProps> = ({
+  alerts,
+  sensorBuses,
+  supabaseTelemetry,
+  onRefreshSupabase,
+  onSendTestReading,
+  isSendingTest,
+  onShowToast
+}) => {
   const [isRunningSelfTest, setIsRunningSelfTest] = useState(false);
   const [selfTestPassed, setSelfTestPassed] = useState(false);
 
@@ -47,6 +59,117 @@ export const AlertsTab: React.FC<AlertsTabProps> = ({ alerts, sensorBuses, onSho
 
   return (
     <div className="flex flex-col w-full px-4 pb-20 space-y-4 max-w-md mx-auto">
+      {/* Supabase Cloud Connection & sensor_readings Panel */}
+      <div className="rounded-xl bg-surface-container-lowest p-4 shadow-sm border border-outline-variant/30 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-primary text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+              database
+            </span>
+            <div>
+              <h3 className="text-sm font-semibold text-on-surface">Supabase Cloud Database</h3>
+              <p className="text-[11px] text-on-surface-variant font-mono">public.sensor_readings</p>
+            </div>
+          </div>
+          <span
+            className={`px-2.5 py-0.5 rounded-full text-xs font-semibold flex items-center gap-1 ${
+              supabaseTelemetry?.isConnected
+                ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                : 'bg-amber-100 text-amber-800 border border-amber-300'
+            }`}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse"></span>
+            {supabaseTelemetry?.isConnected ? 'Supabase Live' : 'Demo Simulation'}
+          </span>
+        </div>
+
+        {/* 6 Required Data Parameters Mapping Grid */}
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          <div className="p-2 rounded-lg bg-surface-container-low border border-outline-variant/20">
+            <span className="text-[10px] text-on-surface-variant uppercase font-mono block">1. Temperature</span>
+            <span className="text-sm font-bold text-on-surface font-mono">
+              {supabaseTelemetry?.latestReading?.temperature ?? '3.8'}°C
+            </span>
+          </div>
+          <div className="p-2 rounded-lg bg-surface-container-low border border-outline-variant/20">
+            <span className="text-[10px] text-on-surface-variant uppercase font-mono block">2. Humidity</span>
+            <span className="text-sm font-bold text-on-surface font-mono">
+              {supabaseTelemetry?.latestReading?.humidity ?? '88'}% RH
+            </span>
+          </div>
+          <div className="p-2 rounded-lg bg-surface-container-low border border-outline-variant/20">
+            <span className="text-[10px] text-on-surface-variant uppercase font-mono block">3. Battery Level</span>
+            <span className="text-sm font-bold text-on-surface font-mono">
+              {supabaseTelemetry?.latestReading?.battery_level ?? '94'}%
+            </span>
+          </div>
+          <div className="p-2 rounded-lg bg-surface-container-low border border-outline-variant/20">
+            <span className="text-[10px] text-on-surface-variant uppercase font-mono block">4. Solar Power</span>
+            <span className="text-sm font-bold text-on-surface font-mono">
+              {supabaseTelemetry?.latestReading?.solar_power ?? '842'} W
+            </span>
+          </div>
+          <div className="p-2 rounded-lg bg-surface-container-low border border-outline-variant/20">
+            <span className="text-[10px] text-on-surface-variant uppercase font-mono block">5. Cooling Status</span>
+            <span className="text-sm font-bold text-primary font-mono capitalize">
+              {supabaseTelemetry?.latestReading?.cooling_status ?? 'Active'}
+            </span>
+          </div>
+          <div className="p-2 rounded-lg bg-surface-container-low border border-outline-variant/20">
+            <span className="text-[10px] text-on-surface-variant uppercase font-mono block">6. Latest Reading Time</span>
+            <span className="text-[11px] font-medium text-on-surface font-mono truncate block" title={supabaseTelemetry?.latestReading?.created_at}>
+              {supabaseTelemetry?.latestReading?.created_at
+                ? new Date(supabaseTelemetry.latestReading.created_at).toLocaleTimeString()
+                : 'Just now'}
+            </span>
+          </div>
+        </div>
+
+        {/* Security & Env Variables status */}
+        <div className="bg-surface-container-high/60 rounded-lg p-2.5 space-y-1.5 text-xs border border-outline-variant/20">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] text-on-surface-variant font-mono">VITE_SUPABASE_URL</span>
+            <span className="font-mono text-[11px] font-semibold text-on-surface">
+              {supabaseTelemetry?.isConfigured ? 'Configured (Public Host)' : 'Using Environment Fallback'}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] text-on-surface-variant font-mono">VITE_SUPABASE_ANON_KEY</span>
+            <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+              Safe Publishable Anon Key
+            </span>
+          </div>
+          <p className="text-[10px] text-on-surface-variant pt-1 border-t border-outline-variant/20">
+            No service-role or secret keys are exposed to the client. Realtime updates listen on <code className="font-mono text-[10px] bg-surface-container px-1 py-0.5 rounded">public:sensor_readings</code>.
+          </p>
+        </div>
+
+        {/* Diagnostic Actions */}
+        <div className="flex items-center gap-2 pt-1">
+          {onSendTestReading && (
+            <button
+              onClick={onSendTestReading}
+              disabled={isSendingTest}
+              className="flex-1 h-9 rounded-lg bg-primary text-on-primary text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-primary/90 transition-colors disabled:opacity-60"
+            >
+              <span className={`material-symbols-outlined text-[16px] ${isSendingTest ? 'animate-spin' : ''}`}>
+                {isSendingTest ? 'progress_activity' : 'send'}
+              </span>
+              <span>{isSendingTest ? 'Transmitting...' : 'Write Test Row to Supabase'}</span>
+            </button>
+          )}
+          {onRefreshSupabase && (
+            <button
+              onClick={onRefreshSupabase}
+              className="h-9 px-3 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface text-xs font-medium border border-outline-variant/30 flex items-center gap-1"
+              title="Refresh Supabase records"
+            >
+              <span className="material-symbols-outlined text-[16px]">refresh</span>
+              <span>Sync</span>
+            </button>
+          )}
+        </div>
+      </div>
       {/* System Health Status Banner */}
       <div className="relative overflow-hidden bg-primary-container text-on-primary rounded-xl shadow-md p-4 border border-primary-fixed/20">
         <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-primary-fixed-dim/10 rounded-full blur-2xl pointer-events-none"></div>

@@ -1,6 +1,6 @@
 {
   "name": "SolFrigo - Solar Smart Mini Cold Storage",
-  "description": "Solar-powered smart mini cold storage system with MPPT regulation, LiFePO4 battery, PCM thermal buffering, and ESP32 IoT telemetry for fresh vegetable preservation in NER India.",
+  "description": "Solar-powered smart mini cold storage system with MPPT regulation, LiFePO4 battery, PCM thermal buffering, and Supabase IoT telemetry for fresh fruit and vegetable preservation in NER India.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

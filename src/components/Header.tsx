@@ -4,9 +4,19 @@ interface HeaderProps {
   onOpenArchitecture: () => void;
   onBackToLanding: () => void;
   lastSyncedSeconds: number;
+  isSupabaseConnected?: boolean;
+  onSyncSupabase?: () => void;
+  isSyncing?: boolean;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onOpenArchitecture, onBackToLanding, lastSyncedSeconds }) => {
+export const Header: React.FC<HeaderProps> = ({
+  onOpenArchitecture,
+  onBackToLanding,
+  lastSyncedSeconds,
+  isSupabaseConnected = false,
+  onSyncSupabase,
+  isSyncing = false
+}) => {
   return (
     <header className="fixed top-0 w-full z-40 pt-safe bg-surface/85 backdrop-blur-xl border-b border-surface-container-high/60 shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
       <div className="h-16 px-3 max-w-md mx-auto flex items-center justify-between">
@@ -38,13 +48,31 @@ export const Header: React.FC<HeaderProps> = ({ onOpenArchitecture, onBackToLand
             </div>
             <div className="flex items-center gap-1 text-on-surface-variant">
               <span className="material-symbols-outlined text-[12px] text-primary">location_on</span>
-              <span className="text-[10px] font-medium truncate">Unit NER-04 • Kohima</span>
+              <span className="text-[10px] font-medium truncate">Unit NER-04 • Fruits & Veg</span>
             </div>
           </div>
         </div>
 
         {/* Action icons */}
         <div className="flex items-center gap-1.5">
+          {/* Supabase status pill */}
+          <button
+            onClick={onSyncSupabase}
+            className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium border transition-colors ${
+              isSupabaseConnected
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100'
+                : 'bg-surface-container-low text-primary border-outline-variant/40 hover:bg-surface-container'
+            }`}
+            title={isSupabaseConnected ? "Connected to Supabase sensor_readings (Click to refresh)" : "Supabase: Running locally (Click to sync)"}
+          >
+            <span className={`material-symbols-outlined text-[14px] ${isSyncing ? 'animate-spin' : ''}`}>
+              database
+            </span>
+            <span className="hidden xs:inline">
+              {isSupabaseConnected ? 'Live DB' : 'Supabase'}
+            </span>
+          </button>
+
           {/* Architecture Blueprint Trigger */}
           <button
             onClick={onOpenArchitecture}

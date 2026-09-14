@@ -7,9 +7,9 @@ interface ChamberTabProps {
   chamber: ChamberTelemetry;
   actuators: ActuatorState;
   lastSyncedSeconds: number;
-  supabaseTelemetry: SupabaseTelemetryState;
-  isRefreshingSupabase: boolean;
-  onRefreshSupabase: () => void;
+  supabaseTelemetry?: SupabaseTelemetryState;
+  isRefreshingSupabase?: boolean;
+  onRefreshSupabase?: () => void;
   onSendTestReading?: () => void;
   isSendingTest?: boolean;
   onUpdateSetpoint: (delta: number) => void;
@@ -24,8 +24,8 @@ export const ChamberTab: React.FC<ChamberTabProps> = ({
   actuators,
   lastSyncedSeconds,
   supabaseTelemetry,
-  isRefreshingSupabase,
-  onRefreshSupabase,
+  isRefreshingSupabase = false,
+  onRefreshSupabase = () => {},
   onSendTestReading,
   isSendingTest,
   onUpdateSetpoint,

@@ -24,6 +24,7 @@ import { ProduceTab } from './components/ProduceTab';
 import { AlertsTab } from './components/AlertsTab';
 import { ArchitectureModal } from './components/ArchitectureModal';
 import { LandingPage } from './components/LandingPage';
+import { useSupabaseTelemetry } from './hooks/useSupabaseTelemetry';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<'landing' | 'dashboard'>('landing');
@@ -31,6 +32,52 @@ export default function App() {
   const [isArchitectureOpen, setIsArchitectureOpen] = useState(false);
   const [lastSyncedSeconds, setLastSyncedSeconds] = useState(1);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Supabase Cloud Telemetry Hook
+  const {
+    telemetryState: supabaseTelemetry,
+    isLoading: isRefreshingSupabase,
+    refreshReadings: handleRefreshSupabase,
+    insertTestReading
+  } = useSupabaseTelemetry();
+
+  const [isSendingTest, setIsSendingTest] = useState(false);
+
+  const handleSendTestReading = async () => {
+    setIsSendingTest(true);
+    try {
+      const res = await insertTestReading();
+      if (res.success) {
+        showToast('Live test reading recorded to Supabase sensor_readings table!');
+      } else {
+        showToast(res.error ? `Failed to write: ${res.error}` : 'Error inserting test reading');
+      }
+    } catch {
+      showToast('Error sending test reading');
+    } finally {
+      setIsSendingTest(false);
+    }
+  };
+
+  // Synchronize live telemetry values from Supabase into chamber, solar & battery state
+  useEffect(() => {
+    if (supabaseTelemetry?.latestReading) {
+      const lr = supabaseTelemetry.latestReading;
+      setChamber((prev) => ({
+        ...prev,
+        currentTemp: Number(lr.temperature.toFixed(1)),
+        humidity: Math.round(lr.humidity)
+      }));
+      setSolar((prev) => ({
+        ...prev,
+        solarWatts: Math.round(lr.solarPower)
+      }));
+      setBattery((prev) => ({
+        ...prev,
+        socPercentage: Math.round(lr.batteryLevel)
+      }));
+    }
+  }, [supabaseTelemetry?.latestReading]);
 
   // Chamber State
   const [chamber, setChamber] = useState<ChamberTelemetry>({
@@ -292,6 +339,11 @@ export default function App() {
                 chamber={chamber}
                 actuators={actuators}
                 lastSyncedSeconds={lastSyncedSeconds}
+                supabaseTelemetry={supabaseTelemetry}
+                isRefreshingSupabase={isRefreshingSupabase}
+                onRefreshSupabase={handleRefreshSupabase}
+                onSendTestReading={handleSendTestReading}
+                isSendingTest={isSendingTest}
                 onUpdateSetpoint={handleUpdateSetpoint}
                 onToggleTurbo={handleToggleTurbo}
                 onToggleDoor={handleToggleDoor}
@@ -306,6 +358,7 @@ export default function App() {
                 battery={battery}
                 energyLedger={energyLedger}
                 resilienceMode={resilienceMode}
+                supabaseTelemetry={supabaseTelemetry}
                 onChangeResilienceMode={handleChangeResilienceMode}
                 onPollSensors={handlePollSensors}
                 isPolling={isPollingSolar}
@@ -325,6 +378,10 @@ export default function App() {
               <AlertsTab
                 alerts={alerts}
                 sensorBuses={sensorBuses}
+                supabaseTelemetry={supabaseTelemetry}
+                onRefreshSupabase={handleRefreshSupabase}
+                onSendTestReading={handleSendTestReading}
+                isSendingTest={isSendingTest}
                 onShowToast={showToast}
               />
             )}

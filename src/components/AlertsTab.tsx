@@ -100,26 +100,26 @@ export const AlertsTab: React.FC<AlertsTabProps> = ({
           <div className="p-2 rounded-lg bg-surface-container-low border border-outline-variant/20">
             <span className="text-[10px] text-on-surface-variant uppercase font-mono block">3. Battery Level</span>
             <span className="text-sm font-bold text-on-surface font-mono">
-              {supabaseTelemetry?.latestReading?.battery_level ?? '94'}%
+              {supabaseTelemetry?.latestReading?.batteryLevel ?? 94}%
             </span>
           </div>
           <div className="p-2 rounded-lg bg-surface-container-low border border-outline-variant/20">
             <span className="text-[10px] text-on-surface-variant uppercase font-mono block">4. Solar Power</span>
             <span className="text-sm font-bold text-on-surface font-mono">
-              {supabaseTelemetry?.latestReading?.solar_power ?? '842'} W
+              {supabaseTelemetry?.latestReading?.solarPower ?? 842} W
             </span>
           </div>
           <div className="p-2 rounded-lg bg-surface-container-low border border-outline-variant/20">
             <span className="text-[10px] text-on-surface-variant uppercase font-mono block">5. Cooling Status</span>
             <span className="text-sm font-bold text-primary font-mono capitalize">
-              {supabaseTelemetry?.latestReading?.cooling_status ?? 'Active'}
+              {supabaseTelemetry?.latestReading?.coolingStatus ?? 'Active'}
             </span>
           </div>
           <div className="p-2 rounded-lg bg-surface-container-low border border-outline-variant/20">
             <span className="text-[10px] text-on-surface-variant uppercase font-mono block">6. Latest Reading Time</span>
-            <span className="text-[11px] font-medium text-on-surface font-mono truncate block" title={supabaseTelemetry?.latestReading?.created_at}>
-              {supabaseTelemetry?.latestReading?.created_at
-                ? new Date(supabaseTelemetry.latestReading.created_at).toLocaleTimeString()
+            <span className="text-[11px] font-medium text-on-surface font-mono truncate block" title={supabaseTelemetry?.latestReading?.readingTime}>
+              {supabaseTelemetry?.latestReading?.readingTime
+                ? new Date(supabaseTelemetry.latestReading.readingTime).toLocaleTimeString()
                 : 'Just now'}
             </span>
           </div>

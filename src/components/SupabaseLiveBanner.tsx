@@ -9,6 +9,17 @@ interface SupabaseLiveBannerProps {
   isSendingTest?: boolean;
 }
 
+const defaultTelemetry: SupabaseTelemetryState = {
+  isConfigured: false,
+  isConnected: false,
+  lastReadingTime: null,
+  lastFetchedAt: null,
+  errorMessage: null,
+  isRealtimeActive: false,
+  latestReading: null,
+  recentReadings: []
+};
+
 export const SupabaseLiveBanner: React.FC<SupabaseLiveBannerProps> = ({
   telemetry,
   isLoading,
@@ -17,6 +28,7 @@ export const SupabaseLiveBanner: React.FC<SupabaseLiveBannerProps> = ({
   isSendingTest
 }) => {
   const [showRecentTable, setShowRecentTable] = useState(false);
+  const safeTelemetry = telemetry || defaultTelemetry;
 
   // Format reading time nicely
   const formatTime = (timeStr?: string | null) => {
@@ -31,7 +43,7 @@ export const SupabaseLiveBanner: React.FC<SupabaseLiveBannerProps> = ({
     }
   };
 
-  const reading = telemetry.latestReading;
+  const reading = safeTelemetry.latestReading;
 
   return (
     <div className="w-full rounded-2xl bg-surface-container-lowest border border-outline-variant/30 shadow-sm overflow-hidden">
@@ -39,12 +51,12 @@ export const SupabaseLiveBanner: React.FC<SupabaseLiveBannerProps> = ({
       <div className="px-4 py-3 bg-gradient-to-r from-surface-container-low via-surface-container-lowest to-surface-container-low border-b border-outline-variant/20 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="relative flex items-center justify-center w-5 h-5 shrink-0">
-            {telemetry.isConnected ? (
+            {safeTelemetry.isConnected ? (
               <>
                 <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-600"></span>
               </>
-            ) : telemetry.isConfigured ? (
+            ) : safeTelemetry.isConfigured ? (
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500 animate-pulse"></span>
             ) : (
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-sky-500"></span>
@@ -55,16 +67,16 @@ export const SupabaseLiveBanner: React.FC<SupabaseLiveBannerProps> = ({
               <span className="text-xs font-bold text-on-surface tracking-tight truncate">
                 Supabase <span className="font-mono text-primary font-semibold">sensor_readings</span>
               </span>
-              {telemetry.isRealtimeActive && (
+              {safeTelemetry.isRealtimeActive && (
                 <span className="px-1.5 py-0.2 text-[9px] font-bold rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
                   REALTIME
                 </span>
               )}
             </div>
             <span className="text-[10px] text-on-surface-variant truncate">
-              {telemetry.isConnected
+              {safeTelemetry.isConnected
                 ? 'Connected to live database'
-                : telemetry.isConfigured
+                : safeTelemetry.isConfigured
                 ? 'Connecting to Supabase instance...'
                 : 'Local Telemetry Active (Configure .env for Cloud)'}
             </span>
@@ -213,12 +225,12 @@ export const SupabaseLiveBanner: React.FC<SupabaseLiveBannerProps> = ({
                   Latest Reading Time
                 </span>
                 <span className="text-xs font-semibold text-on-surface truncate font-mono">
-                  {formatTime(reading?.readingTime ?? telemetry.lastReadingTime)}
+                  {formatTime(reading?.readingTime ?? safeTelemetry.lastReadingTime)}
                 </span>
               </div>
             </div>
             <span className="text-[10px] text-on-surface-variant font-medium shrink-0">
-              {telemetry.lastFetchedAt ? 'Synced' : 'Real-time'}
+              {safeTelemetry.lastFetchedAt ? 'Synced' : 'Real-time'}
             </span>
           </div>
         </div>
@@ -252,7 +264,7 @@ export const SupabaseLiveBanner: React.FC<SupabaseLiveBannerProps> = ({
               )}
             </div>
 
-            {telemetry.recentReadings.length > 0 ? (
+            {safeTelemetry.recentReadings.length > 0 ? (
               <div className="overflow-x-auto rounded-lg border border-outline-variant/20 max-h-48 overflow-y-auto text-[11px]">
                 <table className="w-full text-left border-collapse">
                   <thead className="bg-surface-container font-semibold text-on-surface-variant sticky top-0">
@@ -266,7 +278,7 @@ export const SupabaseLiveBanner: React.FC<SupabaseLiveBannerProps> = ({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-outline-variant/15 text-on-surface">
-                    {telemetry.recentReadings.map((row, idx) => (
+                    {safeTelemetry.recentReadings.map((row, idx) => (
                       <tr key={row.id || idx} className="hover:bg-surface-container-low transition-colors">
                         <td className="p-1.5 font-mono text-[10px] text-on-surface-variant truncate max-w-[90px]">
                           {formatTime(row.readingTime)}
@@ -287,7 +299,7 @@ export const SupabaseLiveBanner: React.FC<SupabaseLiveBannerProps> = ({
               </div>
             ) : (
               <div className="p-3 text-center rounded-lg bg-surface-container-low text-xs text-on-surface-variant">
-                {telemetry.errorMessage || 'No rows in `sensor_readings` table yet. Send an IoT packet or insert a test reading.'}
+                {safeTelemetry.errorMessage || 'No rows in `sensor_readings` table yet. Send an IoT packet or insert a test reading.'}
               </div>
             )}
           </div>

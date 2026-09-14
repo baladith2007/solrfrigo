@@ -105,6 +105,8 @@ export interface SupabaseTelemetryState {
   lastFetchedAt: Date | null;
   errorMessage: string | null;
   isRealtimeActive: boolean;
+  isRlsBlocked?: boolean;
+  isLocalPreview?: boolean;
   latestReading: {
     temperature: number;
     humidity: number;

@@ -7,6 +7,7 @@ interface SupabaseLiveBannerProps {
   onRefresh: () => void;
   onSendTestReading?: () => void;
   isSendingTest?: boolean;
+  onOpenRlsModal?: () => void;
 }
 
 const defaultTelemetry: SupabaseTelemetryState = {
@@ -16,6 +17,8 @@ const defaultTelemetry: SupabaseTelemetryState = {
   lastFetchedAt: null,
   errorMessage: null,
   isRealtimeActive: false,
+  isRlsBlocked: false,
+  isLocalPreview: false,
   latestReading: null,
   recentReadings: []
 };
@@ -25,7 +28,8 @@ export const SupabaseLiveBanner: React.FC<SupabaseLiveBannerProps> = ({
   isLoading,
   onRefresh,
   onSendTestReading,
-  isSendingTest
+  isSendingTest,
+  onOpenRlsModal
 }) => {
   const [showRecentTable, setShowRecentTable] = useState(false);
   const safeTelemetry = telemetry || defaultTelemetry;
@@ -70,6 +74,16 @@ export const SupabaseLiveBanner: React.FC<SupabaseLiveBannerProps> = ({
               {safeTelemetry.isConnected && safeTelemetry.isRealtimeActive && (
                 <span className="px-1.5 py-0.2 text-[9px] font-bold rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
                   REALTIME
+                </span>
+              )}
+              {safeTelemetry.isLocalPreview && (
+                <span className="px-1.5 py-0.2 text-[9px] font-bold rounded-full bg-sky-100 text-sky-800 border border-sky-300">
+                  PREVIEW
+                </span>
+              )}
+              {safeTelemetry.isRlsBlocked && (
+                <span className="px-1.5 py-0.2 text-[9px] font-bold rounded-full bg-amber-100 text-amber-900 border border-amber-300">
+                  RLS RESTRICTED
                 </span>
               )}
               {!safeTelemetry.isConnected && (
@@ -310,21 +324,56 @@ export const SupabaseLiveBanner: React.FC<SupabaseLiveBannerProps> = ({
         {/* Expandable Recent Sensor Readings Table */}
         {showRecentTable && (
           <div className="mt-2 pt-2 border-t border-outline-variant/25 space-y-2">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
               <span className="text-xs font-bold text-on-surface">
                 Recent <code className="text-primary font-mono">sensor_readings</code> Rows
               </span>
-              {onSendTestReading && (
-                <button
-                  onClick={onSendTestReading}
-                  disabled={isSendingTest}
-                  className="px-2 py-0.5 rounded text-[10px] font-semibold bg-primary text-on-primary hover:bg-primary/90 transition-colors flex items-center gap-1"
-                >
-                  <span className="material-symbols-outlined text-[12px]">send</span>
-                  {isSendingTest ? 'Sending...' : 'Insert Test Reading'}
-                </button>
-              )}
+              <div className="flex items-center gap-1.5">
+                {onOpenRlsModal && (
+                  <button
+                    onClick={onOpenRlsModal}
+                    className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300 hover:bg-amber-200 transition-colors flex items-center gap-1 shadow-2xs"
+                    title="View SQL command to fix Supabase Row-Level Security policy"
+                  >
+                    <span className="material-symbols-outlined text-[12px] text-amber-700">shield</span>
+                    RLS SQL Fix
+                  </button>
+                )}
+                {onSendTestReading && (
+                  <button
+                    onClick={onSendTestReading}
+                    disabled={isSendingTest}
+                    className="px-2 py-0.5 rounded text-[10px] font-semibold bg-primary text-on-primary hover:bg-primary/90 transition-colors flex items-center gap-1 shadow-2xs"
+                  >
+                    <span className="material-symbols-outlined text-[12px]">send</span>
+                    {isSendingTest ? 'Sending...' : 'Insert Test Reading'}
+                  </button>
+                )}
+              </div>
             </div>
+
+            {/* RLS Policy Notice Banner if write was blocked */}
+            {safeTelemetry.isRlsBlocked && (
+              <div className="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-950 text-xs flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="material-symbols-outlined text-amber-600 text-[18px] shrink-0">
+                    lock_open
+                  </span>
+                  <div className="truncate">
+                    <span className="font-bold text-amber-900">Supabase RLS Policy:</span>{' '}
+                    <span className="text-amber-800 text-[11px]">Allow anonymous inserts to save directly to cloud.</span>
+                  </div>
+                </div>
+                {onOpenRlsModal && (
+                  <button
+                    onClick={onOpenRlsModal}
+                    className="px-2 py-1 rounded bg-amber-700 text-white font-bold text-[10px] hover:bg-amber-800 transition-colors shrink-0 shadow-2xs"
+                  >
+                    View SQL Fix
+                  </button>
+                )}
+              </div>
+            )}
 
             {safeTelemetry.recentReadings.length > 0 ? (
               <div className="overflow-x-auto rounded-lg border border-outline-variant/20 max-h-48 overflow-y-auto text-[11px]">

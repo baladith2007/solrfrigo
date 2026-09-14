@@ -23,6 +23,7 @@ import { SolarPowerTab } from './components/SolarPowerTab';
 import { ProduceTab } from './components/ProduceTab';
 import { AlertsTab } from './components/AlertsTab';
 import { ArchitectureModal } from './components/ArchitectureModal';
+import { RlsFixModal } from './components/RlsFixModal';
 import { LandingPage } from './components/LandingPage';
 import { useSupabaseTelemetry } from './hooks/useSupabaseTelemetry';
 
@@ -30,6 +31,8 @@ export default function App() {
   const [currentView, setCurrentView] = useState<'landing' | 'dashboard'>('landing');
   const [activeTab, setActiveTab] = useState<TabType>('chamber');
   const [isArchitectureOpen, setIsArchitectureOpen] = useState(false);
+  const [isRlsModalOpen, setIsRlsModalOpen] = useState(false);
+  const [rlsErrorMessage, setRlsErrorMessage] = useState<string | null>(null);
   const [lastSyncedSeconds, setLastSyncedSeconds] = useState(1);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -38,7 +41,8 @@ export default function App() {
     telemetryState: supabaseTelemetry,
     isLoading: isRefreshingSupabase,
     refreshReadings: handleRefreshSupabase,
-    insertTestReading
+    insertTestReading,
+    addLocalReading
   } = useSupabaseTelemetry();
 
   const [isSendingTest, setIsSendingTest] = useState(false);
@@ -49,6 +53,13 @@ export default function App() {
       const res = await insertTestReading();
       if (res.success) {
         showToast('Live test reading recorded to Supabase sensor_readings table!');
+        setIsRlsModalOpen(false);
+      } else if (res.isRlsBlocked) {
+        setRlsErrorMessage(res.error || 'Row-Level Security policy error on sensor_readings');
+        setIsRlsModalOpen(true);
+        // Automatically inject local preview reading so dashboard displays live metrics immediately
+        addLocalReading();
+        showToast('RLS blocked cloud write: Loaded local preview & opened SQL fix.');
       } else {
         showToast(res.error ? `Failed to write: ${res.error}` : 'Error inserting test reading');
       }
@@ -344,6 +355,7 @@ export default function App() {
                 onRefreshSupabase={handleRefreshSupabase}
                 onSendTestReading={handleSendTestReading}
                 isSendingTest={isSendingTest}
+                onOpenRlsModal={() => setIsRlsModalOpen(true)}
                 onUpdateSetpoint={handleUpdateSetpoint}
                 onToggleTurbo={handleToggleTurbo}
                 onToggleDoor={handleToggleDoor}
@@ -400,6 +412,19 @@ export default function App() {
       <ArchitectureModal
         isOpen={isArchitectureOpen}
         onClose={() => setIsArchitectureOpen(false)}
+      />
+
+      {/* Supabase Row-Level Security (RLS) SQL Fix Modal */}
+      <RlsFixModal
+        isOpen={isRlsModalOpen}
+        onClose={() => setIsRlsModalOpen(false)}
+        onRetry={handleSendTestReading}
+        isRetrying={isSendingTest}
+        onUseLocalPreview={() => {
+          addLocalReading();
+          showToast('Loaded local preview sensor reading into dashboard!');
+        }}
+        errorMessage={rlsErrorMessage}
       />
 
       {/* Floating Toast Notification */}

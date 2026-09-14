@@ -81,16 +81,16 @@ export function normalizeSensorReading(raw: RawSensorReading, isRealtime = false
     raw.humidity ?? raw.rh ?? raw.relative_humidity ?? 88
   );
   const batteryLevel = Number(
-    raw.battery_level ?? raw.battery_soc ?? raw.battery_percentage ?? raw.battery ?? 92
+    raw.batteryLevel ?? raw.battery_level ?? raw.battery_soc ?? raw.battery_percentage ?? raw.battery ?? 92
   );
   const solarPower = Number(
-    raw.solar_power ?? raw.solar_watts ?? raw.solar_power_w ?? raw.solar ?? 840
+    raw.solarPower ?? raw.solar_power ?? raw.solar_watts ?? raw.solar_power_w ?? raw.solar ?? 840
   );
   const coolingStatus = String(
-    raw.cooling_status ?? raw.cooling_state ?? raw.status ?? 'Peltier Active (Normal)'
+    raw.coolingStatus ?? raw.cooling_status ?? raw.cooling_state ?? raw.status ?? 'Peltier Active (Normal)'
   );
   const readingTime = String(
-    raw.reading_time ?? raw.created_at ?? raw.timestamp ?? new Date().toISOString()
+    raw.readingTime ?? raw.reading_time ?? raw.created_at ?? raw.timestamp ?? new Date().toISOString()
   );
 
   return {
@@ -138,8 +138,16 @@ export async function fetchLatestSensorReadings(limit = 10): Promise<{
         .order('id', { ascending: false })
         .limit(limit);
       const res = await fallbackQuery;
-      data = res.data;
-      error = res.error;
+      if (!res.error) {
+        data = res.data;
+        error = null;
+      } else {
+        // Fallback without ORDER BY
+        const plainQuery = client.from('sensor_readings').select('*').limit(limit);
+        const resPlain = await plainQuery;
+        data = resPlain.data;
+        error = resPlain.error;
+      }
     }
 
     if (error) {

@@ -12,6 +12,7 @@ interface ChamberTabProps {
   onRefreshSupabase?: () => void;
   onSendTestReading?: () => void;
   isSendingTest?: boolean;
+  onOpenRlsModal?: () => void;
   onUpdateSetpoint: (delta: number) => void;
   onToggleTurbo: (active: boolean) => void;
   onToggleDoor: () => void;
@@ -28,6 +29,7 @@ export const ChamberTab: React.FC<ChamberTabProps> = ({
   onRefreshSupabase = () => {},
   onSendTestReading,
   isSendingTest,
+  onOpenRlsModal,
   onUpdateSetpoint,
   onToggleTurbo,
   onToggleDoor,
@@ -50,6 +52,7 @@ export const ChamberTab: React.FC<ChamberTabProps> = ({
         onRefresh={onRefreshSupabase}
         onSendTestReading={onSendTestReading}
         isSendingTest={isSendingTest}
+        onOpenRlsModal={onOpenRlsModal}
       />
 
       {/* Alert/Status Ambient Pill */}

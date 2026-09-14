@@ -3,6 +3,7 @@ import {
   isSupabaseConfigured,
   fetchLatestSensorReadings,
   subscribeToSensorReadings,
+  normalizeSensorReading,
   NormalizedSensorReading,
   getSupabaseClient
 } from '../lib/supabase';
@@ -104,10 +105,10 @@ export function useSupabaseTelemetry() {
     async (payload?: Partial<NormalizedSensorReading>) => {
       const client = getSupabaseClient();
       if (!client) {
-        return { success: false, error: 'Supabase client not initialized' };
+        return { success: false, error: 'Supabase client not initialized', isRlsBlocked: false };
       }
 
-      const sampleReading = {
+      let sampleData: Record<string, any> = {
         temperature: payload?.temperature ?? Number((3.6 + Math.random() * 0.6).toFixed(1)),
         humidity: payload?.humidity ?? Math.round(87 + Math.random() * 4),
         battery_level: payload?.batteryLevel ?? Math.round(91 + Math.random() * 5),
@@ -117,18 +118,140 @@ export function useSupabaseTelemetry() {
       };
 
       try {
-        const { error } = await client.from('sensor_readings').insert([sampleReading]);
-        if (error) {
-          return { success: false, error: error.message };
+        let insertedRow: any = null;
+        let { data: insertedList, error } = await client.from('sensor_readings').insert([sampleData]).select();
+
+        if (!error && insertedList && insertedList.length > 0) {
+          insertedRow = insertedList[0];
         }
-        await fetchReadings(true);
-        return { success: true, error: null };
+
+        // If error is about column missing (code 42703), retry with alternative column naming conventions
+        if (error && (error.message.includes('created_at') || error.code === '42703')) {
+          sampleData = {
+            temperature: sampleData.temperature,
+            humidity: sampleData.humidity,
+            battery_level: sampleData.battery_level,
+            solar_power: sampleData.solar_power,
+            cooling_status: sampleData.cooling_status,
+            reading_time: new Date().toISOString()
+          };
+          const res2 = await client.from('sensor_readings').insert([sampleData]).select();
+          if (!res2.error) {
+            error = null;
+            insertedRow = res2.data?.[0] || sampleData;
+          } else if (res2.error.code === '42703') {
+            const camelData = {
+              temperature: sampleData.temperature,
+              humidity: sampleData.humidity,
+              batteryLevel: sampleData.battery_level,
+              solarPower: sampleData.solar_power,
+              coolingStatus: sampleData.cooling_status
+            };
+            const res3 = await client.from('sensor_readings').insert([camelData]).select();
+            if (!res3.error) {
+              error = null;
+              insertedRow = res3.data?.[0] || camelData;
+            } else {
+              error = res3.error;
+            }
+          } else {
+            error = res2.error;
+          }
+        }
+
+        if (error) {
+          const isRls =
+            error.message.toLowerCase().includes('row-level security') ||
+            error.code === '42501' ||
+            error.message.includes('violates row-level');
+
+          if (isRls) {
+            setTelemetryState((prev) => ({
+              ...prev,
+              isRlsBlocked: true,
+              errorMessage: 'Supabase RLS Policy: Run SQL in Supabase to grant anonymous insert to sensor_readings.'
+            }));
+          }
+
+          return {
+            success: false,
+            error: error.message,
+            isRlsBlocked: isRls,
+            sampleData
+          };
+        }
+
+        // Successfully written to Supabase! Immediately update the state
+        const normalized = normalizeSensorReading(insertedRow || sampleData);
+        setTelemetryState((prev) => {
+          const updatedRecent = [
+            {
+              id: normalized.id,
+              temperature: normalized.temperature,
+              humidity: normalized.humidity,
+              batteryLevel: normalized.batteryLevel,
+              solarPower: normalized.solarPower,
+              coolingStatus: normalized.coolingStatus,
+              readingTime: normalized.readingTime
+            },
+            ...prev.recentReadings.filter((r) => r.id !== normalized.id).slice(0, 19)
+          ];
+
+          return {
+            ...prev,
+            isConnected: true,
+            isRlsBlocked: false,
+            isLocalPreview: false,
+            errorMessage: null,
+            lastReadingTime: normalized.readingTime,
+            lastFetchedAt: new Date(),
+            latestReading: {
+              temperature: normalized.temperature,
+              humidity: normalized.humidity,
+              batteryLevel: normalized.batteryLevel,
+              solarPower: normalized.solarPower,
+              coolingStatus: normalized.coolingStatus,
+              readingTime: normalized.readingTime
+            },
+            recentReadings: updatedRecent
+          };
+        });
+
+        // Background refetch to sync any additional server fields
+        fetchReadings(true);
+        return { success: true, error: null, isRlsBlocked: false };
       } catch (err: any) {
-        return { success: false, error: err?.message || 'Failed to insert test reading' };
+        return { success: false, error: err?.message || 'Failed to insert test reading', isRlsBlocked: false };
       }
     },
     [fetchReadings]
   );
+
+  // Inject a local preview reading into the UI when RLS blocks cloud writes or for testing
+  const addLocalReading = useCallback((payload?: Partial<NormalizedSensorReading>) => {
+    const timeNow = new Date().toISOString();
+    const localReading = {
+      id: `local-${Date.now()}`,
+      temperature: payload?.temperature ?? Number((3.6 + Math.random() * 0.6).toFixed(1)),
+      humidity: payload?.humidity ?? Math.round(87 + Math.random() * 4),
+      batteryLevel: payload?.batteryLevel ?? Math.round(91 + Math.random() * 5),
+      solarPower: payload?.solarPower ?? Math.round(820 + Math.random() * 60),
+      coolingStatus: payload?.coolingStatus ?? 'Active Peltier Stage (Optimal)',
+      readingTime: timeNow
+    };
+
+    setTelemetryState((prev) => ({
+      ...prev,
+      isConnected: true,
+      isLocalPreview: true,
+      lastReadingTime: timeNow,
+      lastFetchedAt: new Date(),
+      latestReading: localReading,
+      recentReadings: [localReading, ...prev.recentReadings.filter((r) => r.id !== localReading.id).slice(0, 19)]
+    }));
+
+    return localReading;
+  }, []);
 
   // Setup initial fetch and real-time subscription
   useEffect(() => {
@@ -209,6 +332,7 @@ export function useSupabaseTelemetry() {
     telemetryState,
     isLoading,
     refreshReadings: () => fetchReadings(false),
-    insertTestReading
+    insertTestReading,
+    addLocalReading
   };
 }

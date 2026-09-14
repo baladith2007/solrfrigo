@@ -53,16 +53,36 @@ export const ChamberTab: React.FC<ChamberTabProps> = ({
       />
 
       {/* Alert/Status Ambient Pill */}
-      <div className="flex items-center justify-between px-4 py-1.5 bg-surface-container-low rounded-full shadow-sm border border-outline-variant/30">
+      <div className={`flex items-center justify-between px-4 py-1.5 rounded-full shadow-sm border transition-colors ${
+        supabaseTelemetry?.isConnected
+          ? 'bg-surface-container-low border-outline-variant/30'
+          : 'bg-rose-50 border-rose-200'
+      }`}>
         <div className="flex items-center gap-2 min-w-0">
           <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-fixed-dim opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+            {supabaseTelemetry?.isConnected ? (
+              <>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
+              </>
+            ) : (
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
+            )}
           </span>
-          <span className="text-xs text-on-surface font-medium truncate">ESP32 Closed-Loop Core</span>
+          <span className={`text-xs font-medium truncate ${
+            supabaseTelemetry?.isConnected ? 'text-on-surface' : 'text-rose-800 font-semibold'
+          }`}>
+            {supabaseTelemetry?.isConnected
+              ? 'Supabase Telemetry Synced'
+              : 'Supabase Connection Error (Live telemetry offline)'}
+          </span>
         </div>
-        <span className="text-[11px] font-semibold text-primary px-2.5 py-0.5 rounded-full bg-primary-fixed">
-          Synced ({lastSyncedSeconds}s ago)
+        <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${
+          supabaseTelemetry?.isConnected
+            ? 'text-primary bg-primary-fixed'
+            : 'text-rose-700 bg-rose-100'
+        }`}>
+          {supabaseTelemetry?.isConnected ? `Synced (${lastSyncedSeconds}s ago)` : 'Offline'}
         </span>
       </div>
 

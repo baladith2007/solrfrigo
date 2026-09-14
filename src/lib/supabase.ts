@@ -1,10 +1,9 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 // Environment variable retrieval (Vite client-side)
-// Users configure these in AI Studio Settings or .env file
-const metaEnv = (import.meta as unknown as { env?: Record<string, string | undefined> })?.env || {};
-const supabaseUrl = (metaEnv.VITE_SUPABASE_URL || '').trim();
-const supabaseAnonKey = (metaEnv.VITE_SUPABASE_ANON_KEY || '').trim();
+// Required: Exactly import.meta.env.VITE_SUPABASE_URL and import.meta.env.VITE_SUPABASE_ANON_KEY
+export const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL || '').trim();
+export const supabaseAnonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim();
 
 export const isSupabaseConfigured = Boolean(
   supabaseUrl &&

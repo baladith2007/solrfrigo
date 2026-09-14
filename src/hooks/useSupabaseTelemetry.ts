@@ -30,7 +30,7 @@ export function useSupabaseTelemetry() {
         ...prev,
         isConfigured: false,
         isConnected: false,
-        errorMessage: 'Supabase URL & Anon Key not detected in environment variables. Running in local simulation mode.'
+        errorMessage: 'Connection Error: VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY not detected in import.meta.env.'
       }));
       return;
     }
@@ -196,7 +196,7 @@ export function useSupabaseTelemetry() {
         ...prev,
         isConfigured: false,
         isConnected: false,
-        errorMessage: 'VITE_SUPABASE_URL & VITE_SUPABASE_ANON_KEY are not yet configured.'
+        errorMessage: 'Connection Error: VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY not detected in import.meta.env.'
       }));
     }
 

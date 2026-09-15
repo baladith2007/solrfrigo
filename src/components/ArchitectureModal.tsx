@@ -56,16 +56,16 @@ export const ArchitectureModal: React.FC<ArchitectureModalProps> = ({ isOpen, on
     {
       id: 4,
       name: '4. Embedded Closed-Loop Controller',
-      tag: 'ESP32 Automation Core',
+      tag: 'ESP-12E Automation Core',
       bgColor: 'bg-amber-50 text-amber-950 border-amber-300',
       badgeColor: 'bg-amber-200 text-amber-900',
       icon: 'memory',
       components: [
-        { name: 'ESP32 Microcontroller', spec: 'Dual-core 240MHz, Wi-Fi / BLE / LoRa transceiver' },
+        { name: 'ESP-12E (ESP8266) Module', spec: 'Tensilica L106 80/160MHz, 4MB SPI Flash, 802.11 b/g/n Wi-Fi' },
         { name: 'Sensors (DS18B20 & INA226)', spec: 'One-Wire chamber/PCM probes + I2C volt/current ICs' },
         { name: 'MOSFET / Relay Drivers', spec: 'PWM switching for TEC, fan speed, pump relays' }
       ],
-      description: 'Runs continuous 100ms closed-loop feedback: monitors chamber temperature against setpoint, checks solar & battery, and dynamically modulates cooling.'
+      description: 'Runs continuous 100ms closed-loop feedback on the ESP-12E: monitors chamber temperature against setpoint, checks solar & battery, and dynamically modulates cooling.'
     },
     {
       id: 5,
@@ -153,6 +153,23 @@ export const ArchitectureModal: React.FC<ArchitectureModalProps> = ({ isOpen, on
                     </div>
                   ))}
                 </div>
+
+                {tier.id === 4 && (
+                  <div className="mt-2.5 p-2.5 rounded-lg bg-white/75 border border-amber-300 text-[10px] space-y-1.5 shadow-xs">
+                    <span className="font-bold text-amber-950 block flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[13px] text-amber-700">cable</span>
+                      ESP-12E (NodeMCU / ESP8266) Pin Assignment:
+                    </span>
+                    <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 text-[9px] font-mono text-amber-900">
+                      <div>• I2C SCL: <span className="font-bold">GPIO5 (D1)</span></div>
+                      <div>• I2C SDA: <span className="font-bold">GPIO4 (D2)</span></div>
+                      <div>• DS18B20 Bus: <span className="font-bold">GPIO14 (D5)</span></div>
+                      <div>• Hatch Reed: <span className="font-bold">GPIO12 (D6)</span></div>
+                      <div>• Peltier PWM: <span className="font-bold">GPIO13 (D7)</span></div>
+                      <div>• Relay Driver: <span className="font-bold">GPIO15 (D8)</span></div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           ))}

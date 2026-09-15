@@ -264,11 +264,11 @@ export default function App() {
           title: 'Chamber Hatch Access Triggered',
           category: 'Breach Advisory',
           timeStr: 'Just now',
-          description: 'Magnetic reed sensor unsealed. Rapid air exchange detected; ESP32 boosting cooling output.',
+          description: 'Magnetic reed sensor unsealed. Rapid air exchange detected; ESP-12E boosting cooling output.',
           active: true
         };
         setAlerts((al) => [doorAlert, ...al]);
-        showToast('Chamber door opened! ESP32 closed-loop compensation engaged.');
+        showToast('Chamber door opened! ESP-12E closed-loop compensation engaged.');
       } else {
         showToast('Chamber door resealed safely.');
       }

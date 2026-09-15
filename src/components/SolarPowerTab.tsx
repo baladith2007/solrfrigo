@@ -487,7 +487,7 @@ export const SolarPowerTab: React.FC<SolarPowerTabProps> = ({
         </span>
         <span>
           {isPolling
-            ? 'Querying ESP32 INA226 Telemetry...'
+            ? 'Querying ESP-12E INA226 Telemetry...'
             : pollSuccessText || 'Poll Solar Sensors Now'}
         </span>
       </button>

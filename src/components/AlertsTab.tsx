@@ -194,7 +194,7 @@ export const AlertsTab: React.FC<AlertsTabProps> = ({
         {/* Telemetry Badges Strip */}
         <div className="grid grid-cols-3 gap-2 bg-black/20 rounded-lg p-2.5 border border-white/10">
           <div className="flex flex-col">
-            <span className="text-[10px] text-primary-fixed-dim uppercase tracking-wider font-mono">ESP32 Core</span>
+            <span className="text-[10px] text-primary-fixed-dim uppercase tracking-wider font-mono">ESP-12E Core</span>
             <span className="text-xs font-semibold text-on-primary mt-0.5 font-mono">v2.4.1 TLS</span>
           </div>
           <div className="flex flex-col">
@@ -219,7 +219,7 @@ export const AlertsTab: React.FC<AlertsTabProps> = ({
         <img
           className="w-full h-full object-cover"
           src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZ5XcWVDbC5EC5k25uMPL71gDnNBWbjQECbYk0cXR2qDQy28xX-NocoDsw8pk-ZJYZeDRbZ4FhTEuzpAwr-VC3ttCu49p8y4hW56GqBbI3OWhmCEsPnlpsPKUBrq6n7qrcNPAjUhrREb37x3D-BfUy7Wqo5KaE8nZQUl9b2tYknG-5scZMJt9C4FGlj9ubwj5_f7-4_LHJ3_lxvWWs0m7PAI0zWY7DmFxX7Xaa-g2SqNxlX-UDjNUH"
-          alt="Technical control unit ESP32 cold room"
+          alt="Technical control unit ESP-12E cold room"
           referrerPolicy="no-referrer"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-on-background/90 via-on-background/40 to-transparent flex items-end p-3">
@@ -391,7 +391,7 @@ export const AlertsTab: React.FC<AlertsTabProps> = ({
                 <span className="material-symbols-outlined text-[18px]">sd_card</span>
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-semibold text-on-surface truncate">ESP32 Offline Flash Buffer</p>
+                <p className="text-xs font-semibold text-on-surface truncate">ESP-12E Flash Buffer</p>
                 <p className="text-[10px] text-on-surface-variant">4,320 cycles cached (~72h backup)</p>
               </div>
             </div>
@@ -425,7 +425,7 @@ export const AlertsTab: React.FC<AlertsTabProps> = ({
           <span className={`material-symbols-outlined text-[20px] ${isRunningSelfTest ? 'animate-spin' : ''}`}>
             {isRunningSelfTest ? 'sync' : 'fact_check'}
           </span>
-          <span>{isRunningSelfTest ? 'Interrogating ESP32 Buses...' : 'Run Full Self-Test Diagnostics'}</span>
+          <span>{isRunningSelfTest ? 'Interrogating ESP-12E Buses...' : 'Run Full Self-Test Diagnostics'}</span>
         </button>
 
         <button

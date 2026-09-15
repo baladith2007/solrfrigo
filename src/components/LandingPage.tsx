@@ -132,7 +132,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchDashboard, onO
               </h1>
 
               <p className="text-base sm:text-lg text-on-surface-variant leading-relaxed max-w-2xl">
-                Combating rural grid deficits and post-harvest losses across Nagaland, Meghalaya, Sikkim, and Assam. Powered by solid-state thermoelectric cooling, Phase Change Material latent retention, and ESP32 IoT automation.
+                Combating rural grid deficits and post-harvest losses across Nagaland, Meghalaya, Sikkim, and Assam. Powered by solid-state thermoelectric cooling, Phase Change Material latent retention, and ESP-12E IoT automation.
               </p>
 
               {/* Action Buttons */}
@@ -180,7 +180,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchDashboard, onO
                     <span className="text-xs font-bold text-on-surface">Unit NER-04 • Kohima Hub</span>
                   </div>
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-semibold">
-                    ESP32 TLS Active
+                    ESP-12E TLS Active
                   </span>
                 </div>
 
@@ -378,14 +378,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchDashboard, onO
               </div>
             </div>
 
-            {/* Pillar 4: ESP32 Autonomous Controller */}
+            {/* Pillar 4: ESP-12E Autonomous Controller */}
             <div className="p-6 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 space-y-3 hover:border-amber-400 transition-all">
               <div className="w-10 h-10 rounded-lg bg-amber-100 text-amber-900 flex items-center justify-center">
                 <span className="material-symbols-outlined text-[22px]">memory</span>
               </div>
-              <h3 className="text-base font-bold text-on-surface">4. ESP32 Closed-Loop Brain</h3>
+              <h3 className="text-base font-bold text-on-surface">4. ESP-12E Closed-Loop Brain</h3>
               <p className="text-xs text-on-surface-variant leading-relaxed">
-                Central dual-core ESP32 micro-controller evaluates temperature probes (DS18B20) and voltage/current sensors (INA226) in real time to regulate PWM cooling, fan speeds, and pumps.
+                High-efficiency ESP-12E (ESP8266) micro-controller evaluates temperature probes (DS18B20) and voltage/current sensors (INA226) in real time to regulate PWM cooling, fan speeds, and pumps.
               </p>
               <div className="pt-2 text-[11px] font-mono text-amber-800 font-semibold border-t border-surface-container">
                 100ms Decision Loop • Fail-Safe Relays
@@ -611,7 +611,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchDashboard, onO
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 p-4 text-xs">
                 <span className="font-bold text-on-surface">Microcontroller & Telemetry</span>
-                <span className="sm:col-span-2 text-on-surface-variant">ESP32 Dual-Core (Wi-Fi, Bluetooth LE, LoRa long range, GSM/SMS emergency fallback)</span>
+                <span className="sm:col-span-2 text-on-surface-variant">ESP-12E (ESP8266 80/160MHz, 4MB Flash, 802.11 b/g/n Wi-Fi, Deep-Sleep IoT, Supabase REST/TLS sync)</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 p-4 text-xs bg-surface-container-low">
                 <span className="font-bold text-on-surface">Sensors Integrated</span>
